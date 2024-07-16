@@ -3,7 +3,7 @@
     include 'config.php';
 
     if(isset($_GET['barang_id'])) {
-        $supplierId = $_GET['barang_id'];
+        $barangID = $_GET['barang_id'];
 
         $sql = "SELECT * FROM barang WHERE barang_id = ?";
         $stmt = mysqli_prepare($config, $sql);
@@ -31,10 +31,11 @@
         $kategori = $_POST['kategori'];
         $stok = $_POST['stok'];
         $hargaSewa = $_POST['hargaSewa'];
+        $supplierId = $_POST['supplierID'];
 
-        $sql = "UPDATE barang SET barang_id = ?, nama_barang = ?, kategori = ?, stok = ?, harga_sewa = ? WHERE barang_id = ?";
+        $sql = "UPDATE barang SET barang_id = ?, nama_barang = ?, kategori = ?, stok = ?, harga_sewa = ?, supplier_id = ? WHERE barang_id = ?";
         $stmt = mysqli_prepare($config, $sql);
-        mysqli_stmt_bind_param($stmt, "sssiis", $supplierId, $namaBarang, $kategori, $stok, $hargaSewa, $supplierId);
+        mysqli_stmt_bind_param($stmt, "sssiiss", $barangID, $namaBarang, $kategori, $stok, $hargaSewa, $supplierId, $barangID);
         mysqli_stmt_execute($stmt);
 
         if( mysqli_stmt_affected_rows($stmt) > 0) {
@@ -103,7 +104,7 @@
     <div class="container">
         <form method="POST" action="#">
             <div class="form-group row">
-                <label for="pengembalian-id" class="col-sm-2 col-form-label">Supplier ID:</label>
+                <label for="pengembalian-id" class="col-sm-2 col-form-label">Barang ID:</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="barang-id" name="barangid" placeholder="Enter barang ID" value="<?= $data['barang_id'] ?>">
                 </div>
@@ -130,6 +131,12 @@
                 <label for="denda" class="col-sm-2 col-form-label">Harga Sewa:</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="hargaSewa" name="hargaSewa" required value="<?= $data['harga_sewa'] ?>">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="denda" class="col-sm-2 col-form-label">Supplier Id:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="supplierID" name="supplierID" required value="<?= $data['supplier_id'] ?>">
                 </div>
             </div>
             <div class="form-group row">
