@@ -117,6 +117,20 @@ if (isset($_SESSION['status'])) {
             </a>
         </nav>
     </div>
+
+    <?php if (isset($_SESSION['message'])): ?>
+    <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
+        <?php echo $_SESSION['message']; ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php 
+        unset($_SESSION['message']);
+        unset($_SESSION['message_type']);
+    ?>
+    <?php endif; ?>
+
     <form class="form-inline my-4 my-lg-0" method="GET">
         <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search...." aria-label="Search" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
         <button class="btn my-2 my-sm-0" type="submit">
@@ -154,7 +168,7 @@ if (isset($_SESSION['status'])) {
                                 while ($data = mysqli_fetch_array($hasil)) {
                             ?>
                             <tr>
-                                <td><input type="checkbox" name="selected[]" value="<?php echo $data['supplier_id']; ?>"></td>
+                                <td><input type="checkbox" name="selected[]" class="checkbox-item" value="<?php echo $data['supplier_id']; ?>"></td>
                                 <td><?php echo $data['supplier_id']; ?></td>
                                 <td><?php echo $data['nama_supplier']; ?></td>
                                 <td><?php echo $data['alamat']; ?></td>
@@ -174,7 +188,7 @@ if (isset($_SESSION['status'])) {
         </div>
         <div class="action-buttons">
             <a href="CreateSupplier.php" class="btn btn-white-black">Create</a>
-            <button class="btn btn-white-black" onclick="document.getElementById('dataForm').action='UpdateDataSupplier.php'; document.getElementById('dataForm').submit();">Update</button>
+            <button class="btn btn-white-black" id='btn-update'>Update</button>
             <button class="btn btn-danger" onclick="document.getElementById('dataForm').submit();">Delete</button>
         </div>
     </div>
@@ -182,11 +196,37 @@ if (isset($_SESSION['status'])) {
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
         document.getElementById('select-all').onclick = function() {
-            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            var checkboxes = document.querySelectorAll('.checkbox-item');
             for (var checkbox of checkboxes) {
                 checkbox.checked = this.checked;
             }
         }
+
+        let checkboxes = document.querySelectorAll('.checkbox-item');
+        let btnUpdate = document.getElementById('btn-update');
+        let supplierID = null;
+
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('click', function() {
+                if (this.checked) {
+                    supplierID = this.value;
+                    checkboxes.forEach(cb => {
+                        if (cb !== this) cb.checked = false;
+                    });
+                } else {
+                    supplierID = null;
+                }
+            });
+        });
+
+        btnUpdate.addEventListener('click', function() {
+            if (supplierID) {
+                document.getElementById('dataForm').action = 'UpdateDataSupplier.php?supplier_id=' + supplierID;
+                document.getElementById('dataForm').submit();
+            } else {
+                alert('Please select a record to update.');
+            }
+        });
     </script>
 </body>
 </html>

@@ -1,6 +1,8 @@
 <?php
 include "config.php";
 
+session_start();
+
 // Ambil status dari query string jika ada
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 
@@ -111,6 +113,19 @@ if ($status == 'success') {
     </div>
     <?php endif; ?>
 
+    <?php if (isset($_SESSION['message'])): ?>
+    <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
+        <?php echo $_SESSION['message']; ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php 
+        unset($_SESSION['message']);
+        unset($_SESSION['message_type']);
+    ?>
+    <?php endif; ?>
+
     <form class="form-inline my-4 my-lg-0" method="GET">
         <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search...." aria-label="Search" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
         <button class="btn my-2 my-sm-0" type="submit">
@@ -153,7 +168,7 @@ if ($status == 'success') {
                                 while ($data = mysqli_fetch_array($hasil)) {
                             ?>
                             <tr>
-                                <td><input type="checkbox" name="selected[]" value="<?php echo $data['peminjaman_id']; ?>"></td>
+                                <td><input type="checkbox" name="selected[]" class="checkbox-item"  value="<?php echo $data['peminjaman_id']; ?>"></td>
                                 <td><?php echo $data['peminjaman_id']; ?></td>
                                 <td><?php echo $data['customer_id']; ?></td>
                                 <td><?php echo $data['barang_id']; ?></td>
@@ -176,7 +191,7 @@ if ($status == 'success') {
         </div>
         <div class="action-buttons">
             <button class="btn btn-white-black" onclick="window.location.href='CreatePeminjaman.php';">Create</button>
-            <button class="btn btn-white-black" onclick="document.getElementById('dataForm').action='UpdatePeminjaman.php'; document.getElementById('dataForm').submit();">Update</button>
+            <button id="btn-update" class="btn btn-white-black">Update</button>
             <button class="btn btn-danger" onclick="document.getElementById('dataForm').action='peminjaman_hapus.php'; document.getElementById('dataForm').submit();">Delete</button>
         </div>
     </div>
@@ -185,11 +200,37 @@ if ($status == 'success') {
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
         document.getElementById('select-all').onclick = function() {
-            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            var checkboxes = document.querySelectorAll('.checkbox-item');
             for (var checkbox of checkboxes) {
                 checkbox.checked = this.checked;
             }
         }
+
+        let checkboxes = document.querySelectorAll('.checkbox-item');
+        let btnUpdate = document.getElementById('btn-update');
+        let peminjamanID = null;
+
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('click', function() {
+                if (this.checked) {
+                    peminjamanID = this.value;
+                    checkboxes.forEach(cb => {
+                        if (cb !== this) cb.checked = false;
+                    });
+                } else {
+                    peminjamanID = null;
+                }
+            });
+        });
+
+        btnUpdate.addEventListener('click', function() {
+            if (peminjamanID) {
+                document.getElementById('dataForm').action = 'UpdatePeminjaman.php?peminjaman_id=' + peminjamanID;
+                document.getElementById('dataForm').submit();
+            } else {
+                alert('Please select a record to update.');
+            }
+        });
     </script>
 </body>
 </html>

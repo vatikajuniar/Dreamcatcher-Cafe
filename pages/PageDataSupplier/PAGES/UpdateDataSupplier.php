@@ -2,10 +2,10 @@
     session_start();
     include 'config.php';
 
-    if(isset($_GET['barang_id'])) {
-        $supplierId = $_GET['barang_id'];
+    if(isset($_GET['supplier_id'])) {
+        $supplierId = $_GET['supplier_id'];
 
-        $sql = "SELECT * FROM barang WHERE barang_id = ?";
+        $sql = "SELECT * FROM supplier WHERE supplier_id = ?";
         $stmt = mysqli_prepare($config, $sql);
         mysqli_stmt_bind_param($stmt, "i", $supplierId);
         mysqli_stmt_execute($stmt);
@@ -27,22 +27,22 @@
     }
 
     if(isset($_POST['ubah'])) {
-        $namaBarang = $_POST['namaBarang'];
-        $kategori = $_POST['kategori'];
-        $stok = $_POST['stok'];
-        $hargaSewa = $_POST['hargaSewa'];
+        $namaSupplier = $_POST['namaSupplier'];
+        $alamat = $_POST['alamat'];
+        $telepon = $_POST['telepon'];
+        $email = $_POST['email'];
 
-        $sql = "UPDATE barang SET barang_id = ?, nama_barang = ?, kategori = ?, stok = ?, harga_sewa = ? WHERE barang_id = ?";
+        $sql = "UPDATE supplier SET supplier_id = ?, nama_supplier = ?, alamat = ?, telepon = ?, email = ? WHERE supplier_id = ?";
         $stmt = mysqli_prepare($config, $sql);
-        mysqli_stmt_bind_param($stmt, "sssiis", $supplierId, $namaBarang, $kategori, $stok, $hargaSewa, $supplierId);
+        mysqli_stmt_bind_param($stmt, "sssiss", $supplierId, $namaSupplier, $alamat, $telepon, $email, $supplierId);
         mysqli_stmt_execute($stmt);
 
         if( mysqli_stmt_affected_rows($stmt) > 0) {
-            header("Location: DataBarang.php");
+            header("Location: DataSupplier.php");
             $_SESSION['message'] = "Data berhasil diperbaharui.";
             $_SESSION['message_type'] = "success";
         }  else {
-            header("Location: DataBarang.php");
+            header("Location: DataSupplier.php");
             $_SESSION['message'] = "Gagal memperbaharui data.";
             $_SESSION['message_type'] = "danger";
         }
@@ -58,7 +58,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Data Barang</title>
+    <title>Update Data Customer</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
@@ -105,36 +105,36 @@
             <div class="form-group row">
                 <label for="pengembalian-id" class="col-sm-2 col-form-label">Supplier ID:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="barang-id" name="barangid" placeholder="Enter barang ID" value="<?= $data['barang_id'] ?>">
+                    <input type="text" class="form-control" id="supplier-id" name="supplierid" placeholder="Enter supplier ID" value="<?= $data['supplier_id'] ?>">
                 </div>
             </div>
             <div class="form-group row">
-                <label for="barang-id" class="col-sm-2 col-form-label">Nama Barang:</label>
+                <label for="barang-id" class="col-sm-2 col-form-label">Nama Supplier:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="namaBarang" name="namaBarang" value="<?= $data['nama_barang'] ?>">
+                    <input type="text" class="form-control" id="namaSupplier" name="namaSupplier" value="<?= $data['nama_supplier'] ?>">
                 </div>
             </div>
             <div class="form-group row">
-                <label for="kondisi-akhir" class="col-sm-2 col-form-label">Kategori:</label>
+                <label for="kondisi-akhir" class="col-sm-2 col-form-label">Alamat:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="kategori" name="kategori" value="<?= $data['kategori'] ?>">
+                    <input type="text" class="form-control" id="alamat" name="alamat" value="<?= $data['alamat'] ?>">
                 </div>
             </div>
             <div class="form-group row">
-                <label for="denda" class="col-sm-2 col-form-label">Stok:</label>
+                <label for="denda" class="col-sm-2 col-form-label">Telepon:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="stok" name="stok" required value="<?= $data['stok'] ?>">
+                    <input type="text" class="form-control" id="telepon" name="telepon" required value="<?= $data['telepon'] ?>">
                 </div>
             </div>
             <div class="form-group row">
-                <label for="denda" class="col-sm-2 col-form-label">Harga Sewa:</label>
+                <label for="denda" class="col-sm-2 col-form-label">Email:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="hargaSewa" name="hargaSewa" required value="<?= $data['harga_sewa'] ?>">
+                    <input type="text" class="form-control" id="email" name="email" required value="<?= $data['email'] ?>">
                 </div>
             </div>
             <div class="form-group row">
                 <div class="col-sm-10 offset-sm-2">
-                    <a class="btn btn-primary" href="DataBarang.php">Back</a>
+                    <a class="btn btn-primary" href="DataSupplier.php">Back</a>
                     <button type="submit" name="ubah" class="btn btn-primary">Save</button>
                 </div>
             </div>

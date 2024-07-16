@@ -1,3 +1,7 @@
+<?= 
+    session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,6 +88,32 @@
             </a>
         </nav>
     </div>
+
+    <!-- Tampilkan pesan di atas form pencarian -->
+    <?php if (!empty($message)) : ?>
+    <div class="container">
+        <div class="alert alert-<?php echo ($status == 'success') ? 'success' : 'danger'; ?> alert-dismissible fade show" role="alert">
+            <?php echo $message; ?>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <?php endif; ?>
+        
+    <?php if (isset($_SESSION['message'])): ?>
+    <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
+        <?php echo $_SESSION['message']; ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php 
+        unset($_SESSION['message']);
+        unset($_SESSION['message_type']);
+    ?>
+    <?php endif; ?>
+
     <form class="form-inline my-4 my-lg-0" action="pengembalian.php" method="GET">
         <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search by ID..." aria-label="Search">
         <button class="btn my-2 my-sm-0" type="submit">
@@ -99,7 +129,7 @@
                             <tr>
                                 <th><input type="checkbox" id="select-all"></th>
                                 <th>pengembalian_id</th>
-                                <th>peminjaman_id</th>
+                                <th>pengembalian_id</th>
                                 <th>tanggal_kembali</th>
                                 <th>kondisi_Akhir</th>
                                 <th>denda</th>
@@ -129,9 +159,9 @@
                             while ($data = mysqli_fetch_array($hasil)) {
                             ?>
                             <tr>
-                                <td><input type="checkbox" class="checkbox-item" value="<?= $data['pengembalian_id']; ?>" name="pengembalian_id[]"></td>
+                                <td><input type="checkbox" name="selected[]" class="checkbox-item" value="<?= $data['pengembalian_id']; ?>" name="pengembalian_id[]"></td>
                                 <td><?= $data['pengembalian_id']; ?></td>
-                                <td><?= $data['peminjaman_id']; ?></td>
+                                <td><?= $data['pengembalian_id']; ?></td>
                                 <td><?= $data['tanggal_kembali']; ?></td>
                                 <td><?= $data['kondisi_Akhir']; ?></td>
                                 <td><?= $data['denda']; ?></td>
@@ -163,12 +193,15 @@
 
         let checkboxes = document.querySelectorAll('.checkbox-item');
         let btnUpdate = document.getElementById('btn-update');
-        let pengembalianID;
+        let pengembalianID = null;
 
         checkboxes.forEach(function(checkbox) {
             checkbox.addEventListener('click', function() {
                 if (this.checked) {
                     pengembalianID = this.value;
+                    checkboxes.forEach(cb => {
+                        if (cb !== this) cb.checked = false;
+                    });
                 } else {
                     pengembalianID = null;
                 }
@@ -179,6 +212,8 @@
             if (pengembalianID) {
                 document.getElementById('dataForm').action = 'UpdatePengembalian.php?pengembalian_id=' + pengembalianID;
                 document.getElementById('dataForm').submit();
+            } else {
+                alert('Please select a record to update.');
             }
         });
     </script>

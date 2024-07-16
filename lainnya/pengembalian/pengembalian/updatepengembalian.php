@@ -1,51 +1,58 @@
 <?php
-include 'config.php';
+    session_start();
+    include 'config.php';
 
-$data = []; // Inisialisasi $data dengan array kosong
+    if(isset($_GET['pengembalian_id'])) {
+        $pengembalianid = $_GET['pengembalian_id'];
 
-if(isset($_GET['pengembalian_id'])) {
-    $pengembalianid = $_GET['pengembalian_id'];
-
-    $sql = "SELECT * FROM pengembalian WHERE pengembalian_id = ?";
-    $stmt = mysqli_prepare($config, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $pengembalianid);
-    mysqli_stmt_execute($stmt);
+        $sql = "SELECT * FROM pengembalian WHERE pengembalian_id = ?";
+        $stmt = mysqli_prepare($config, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $pengembalianid);
+        mysqli_stmt_execute($stmt);
     
-    // Mendapatkan hasil query
-    $result = mysqli_stmt_get_result($stmt);
-    
-    // Mengambil data sebagai asosiasi array
-    $data = mysqli_fetch_assoc($result);
+        // Mendapatkan hasil query
+        $result = mysqli_stmt_get_result($stmt);
+        
+        // Mengambil data sebagai asosiasi array
+        $data = mysqli_fetch_assoc($result);
 
-    // Memeriksa apakah data ditemukan
-    if (!$data) {
-        echo "Data pengembalian tidak ditemukan.";
-        exit; // Keluar dari script jika data tidak ditemukan
-    }
-}
+        // Memeriksa apakah data ditemukan
+        if (!$data) {
+            echo "Data pengembalian tidak ditemukan.";
+        }
+        
 
-if(isset($_POST['ubah'])) {
-    $pengembalianid = $_POST['pengembalianid'];
-    $peminjamanid = $_POST['peminjamanid'];
-    $tanggalkembali = $_POST['tanggalkembali'];
-    $kondisiakhir = $_POST['kondisiakhir'];
-    $denda = $_POST['denda'];
-
-    $sql = "UPDATE pengembalian SET peminjaman_id = ?, tanggal_kembali = ?, kondisi_akhir = ?, denda = ? WHERE pengembalian_id = ?";
-    $stmt = mysqli_prepare($config, $sql);
-    mysqli_stmt_bind_param($stmt, "issii", $peminjamanid, $tanggalkembali, $kondisiakhir, $denda, $pengembalianid);
-    mysqli_stmt_execute($stmt);
-
-    if( mysqli_stmt_affected_rows($stmt) > 0) {
-        header("Location: Pengembalian.php");
-        exit; // Pastikan keluar setelah redirect
+    } else {
+        echo "Parameter pengembalian_id tidak ditemukan.";
     }
 
-    mysqli_stmt_close($stmt);
-}
+    if(isset($_POST['ubah'])) {
+        $pengembalianid = $_POST['pengembalianid'];
+        $peminjamanid = $_POST['peminjamanid'];
+        $tanggalkembali = $_POST['tanggalkembali'];
+        $kondisiakhir = $_POST['kondisiakhir'];
+        $denda = $_POST['denda'];
 
-mysqli_close($config);
+        $sql = "UPDATE pengembalian SET peminjaman_id = ?, tanggal_kembali = ?, kondisi_akhir = ?, denda = ? WHERE pengembalian_id = ?";
+        $stmt = mysqli_prepare($config, $sql);
+        mysqli_stmt_bind_param($stmt, "sssii", $peminjamanid, $tanggalkembali, $kondisiakhir, $denda, $pengembalianid);
+        mysqli_stmt_execute($stmt);
+
+        if( mysqli_stmt_affected_rows($stmt) > 0) {
+            header("Location: Pengembalian.php");
+            $_SESSION['message'] = "Data berhasil diperbaharui.";
+            $_SESSION['message_type'] = "success";
+        }  else {
+            header("Location: Pengembalian.php");
+            $_SESSION['message'] = "Gagal memperbaharui data.";
+            $_SESSION['message_type'] = "danger";
+        }
+
+        mysqli_stmt_close($stmt);
+        mysqli_close($config);
+    }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -94,46 +101,48 @@ mysqli_close($config);
             </a>
         </nav>
     </div>
+
     <div class="container">
-        <form method="POST">
+        <form method="POST" action="#">
             <div class="form-group row">
                 <label for="pengembalian-id" class="col-sm-2 col-form-label">Pengembalian ID:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="pengembalian-id" name="pengembalianid" placeholder="Enter Pengembalian ID" value="<?= isset($data['pengembalian_id']) ? $data['pengembalian_id'] : '' ?>" readonly>
+                    <input type="text" class="form-control" id="pengembalian-id" name="pengembalianid" placeholder="Enter Pengembalian ID" value="<?= $data['pengembalian_id'] ?>">
                 </div>
             </div>
             <div class="form-group row">
                 <label for="peminjaman-id" class="col-sm-2 col-form-label">Peminjaman ID:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="peminjaman-id" name="peminjamanid" placeholder="Enter Peminjaman ID" value="<?= isset($data['peminjaman_id']) ? $data['peminjaman_id'] : '' ?>">
+                    <input type="text" class="form-control" id="peminjaman-id" name="peminjamanid" placeholder="Enter Peminjaman ID" value="<?= $data['peminjaman_id'] ?>">
                 </div>
             </div>
             <div class="form-group row">
-                <label for="tanggal-kembali" class="col-sm-2 col-form-label">Tanggal Kembali:</label>
+                <label for="barang-id" class="col-sm-2 col-form-label">Tanggal Kembali:</label>
                 <div class="col-sm-10">
-                    <input type="date" class="form-control" id="tanggal-kembali" name="tanggalkembali" value="<?= isset($data['tanggal_kembali']) ? $data['tanggal_kembali'] : '' ?>">
+                    <input type="date" class="form-control" id="tanggal-kembali" name="tanggalkembali" value="<?= $data['tanggal_kembali'] ?>">
                 </div>
             </div>
             <div class="form-group row">
-                <label for="kondisiakhir" class="col-sm-2 col-form-label">Kondisi Akhir:</label>
+                <label for="kondisi-akhir" class="col-sm-2 col-form-label">Kondisi Akhir:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="kondisiakhir" name="kondisiakhir" value="<?= isset($data['kondisi_akhir']) ? $data['kondisi_akhir'] : '' ?>">
+                    <input type="text" class="form-control" id="kondisi-akhir" name="kondisiakhir" value="<?= $data['kondisi_Akhir'] ?>">
                 </div>
             </div>
             <div class="form-group row">
                 <label for="denda" class="col-sm-2 col-form-label">Denda:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="denda" name="denda" required value="<?= isset($data['denda']) ? $data['denda'] : '' ?>">
+                    <input type="text" class="form-control" id="denda" name="denda" required value="<?= $data['denda'] ?>">
                 </div>
             </div>
             <div class="form-group row">
-            <div class="col-sm-10">
-                    <input type="submit" name="ubah" value="Simpan" class="btn btn-primary">
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='Pengembalian.php'">Batal</button>
+                <div class="col-sm-10 offset-sm-2">
+                    <a class="btn btn-primary" href="pengembalian.php">Back</a>
+                    <button type="submit" name="ubah" class="btn btn-primary">Save</button>
                 </div>
             </div>
         </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>
 </html>

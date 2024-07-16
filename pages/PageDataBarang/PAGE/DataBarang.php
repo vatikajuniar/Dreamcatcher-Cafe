@@ -2,7 +2,7 @@
 include "config.php";
 
 // UNTUK MENAMBAHKAN PESAN BERHASIL ATAU TIDAK
-
+    session_start();
 ?>
 
 <!DOCTYPE html>
@@ -93,16 +93,30 @@ include "config.php";
             </a>
         </nav>
     </div>
+    
+    <?php if (isset($_SESSION['message'])): ?>
+    <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
+        <?php echo $_SESSION['message']; ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php 
+        unset($_SESSION['message']);
+        unset($_SESSION['message_type']);
+    ?>
+    <?php endif; ?>
+
     <form class="form-inline my-4 my-lg-0" method="GET">
         <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search...." aria-label="Search">
         <button class="btn my-2 my-sm-0">
             <i class="fas fa-search"></i>
         </button>
     </form>
-    <form id="dataForm" action="barang_hapus.php" method="post">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <form id="dataForm" action="barang_hapus" method="post">
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -135,7 +149,7 @@ include "config.php";
                                while ($data = mysqli_fetch_array($hasil)) {
                             ?>
                             <tr>
-                                <td><input type="checkbox" name="selected[]" value="<?php echo $data['barang_id']; ?>"></td>
+                                <td><input type="checkbox" name="selected[]" class="checkbox-item" value="<?php echo $data['barang_id']; ?>"></td>
                                 <td><?php echo $data['barang_id']; ?></td>
                                 <td><?php echo $data['nama_barang']; ?></td>
                                 <td><?php echo $data['kategori']; ?></td>
@@ -151,24 +165,50 @@ include "config.php";
                             ?>
                         </tbody>
                     </table>
+                </form>
                 </div>
             </div>
             <div class="action-buttons">
                 <button class="btn btn-white-black" onclick="document.getElementById('dataForm').action='createDataBarang.php'; document.getElementById('dataForm').submit();">Create</button>
-                <button class="btn btn-white-black" onclick="document.getElementById('dataForm').action='UpdateDataBarang.php'; document.getElementById('dataForm').submit();">Update</button>
-                <button class="btn btn-danger" onclick="document.getElementById('dataForm').submit();">Delete</button>
+                <button class="btn btn-white-black" id='btn-update'>Update</button>
+                <button class="btn btn-danger" onclick="document.getElementById('dataForm').action='barang_hapus.php'; document.getElementById('dataForm').submit();">Delete</button>
             </div>
         </div>
-    </form>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
         document.getElementById('select-all').onclick = function() {
-            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            var checkboxes = document.querySelectorAll('.checkbox-item');
             for (var checkbox of checkboxes) {
                 checkbox.checked = this.checked;
             }
         }
+
+        let checkboxes = document.querySelectorAll('.checkbox-item');
+        let btnUpdate = document.getElementById('btn-update');
+        let dataBarangID = null;
+
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('click', function() {
+                if (this.checked) {
+                    dataBarangID = this.value;
+                    checkboxes.forEach(cb => {
+                        if (cb !== this) cb.checked = false;
+                    });
+                } else {
+                    dataBarangID = null;
+                }
+            });
+        });
+
+        btnUpdate.addEventListener('click', function() {
+            if (dataBarangID) {
+                document.getElementById('dataForm').action = 'UpdateDataBarang.php?barang_id=' + dataBarangID;
+                document.getElementById('dataForm').submit();
+            } else {
+                alert('Please select a record to update.');
+            }
+        });
     </script>
 </body>
 </html>
