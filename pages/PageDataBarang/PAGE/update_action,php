@@ -1,0 +1,46 @@
+<?php
+session_start();
+
+include "config.php";
+
+// Check if form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Validate input data
+    $barang_id = $_POST['barang_id'];
+    $nama_barang = $_POST['nama_barang'];
+    $kategori = $_POST['kategori'];
+    $stok = $_POST['stok'];
+    $harga_sewa = $_POST['harga_sewa'];
+    $supplier_id = $_POST['supplier_id'];
+
+    // Update query
+    $sql = "UPDATE barang SET nama_barang=?, kategori=?, stok=?, harga_sewa=?, supplier_id=? WHERE barang_id=?";
+
+    if ($stmt = mysqli_prepare($config, $sql)) {
+        // Bind parameters to the prepared statement
+        mysqli_stmt_bind_param($stmt, "sssisi", $nama_barang, $kategori, $stok, $harga_sewa, $supplier_id, $barang_id);
+
+        // Attempt to execute the prepared statement
+        if (mysqli_stmt_execute($stmt)) {
+            $_SESSION['message'] = "Data barang berhasil diupdate.";
+            $_SESSION['message_type'] = "success";
+        } else {
+            $_SESSION['message'] = "Gagal mengupdate data barang: " . mysqli_error($config);
+            $_SESSION['message_type'] = "danger";
+        }
+
+        // Close statement
+        mysqli_stmt_close($stmt);
+    } else {
+        $_SESSION['message'] = "Gagal menyiapkan statement SQL.";
+        $_SESSION['message_type'] = "danger";
+    }
+
+    // Close connection
+    mysqli_close($config);
+}
+
+// Redirect back to DataBarang.php
+header("Location: DataBarang.php");
+exit();
+?>
