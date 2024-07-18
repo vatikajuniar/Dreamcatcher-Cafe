@@ -1,3 +1,36 @@
+<?php
+include('config.php');
+
+session_start();
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
+
+    $sql = "SELECT * FROM admin WHERE username = '$username' and password = '$password'";
+    $result = mysqli_query($conn, $sql);
+
+    if ($result) {
+        if (mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $_SESSION['username'] = $username; // Simpan username ke dalam session
+            header("Location: ../index.php");
+        } else {
+            $error = "Username tidak ditemukan!";
+        }
+    } else {
+        $error = "Error: " . mysqli_error($conn);
+    }
+
+    mysqli_close($conn);
+
+    if (isset($error)) {
+        echo "<script>alert('$error');</script>";
+        exit();
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,7 +160,7 @@
     <div class="container-fluid">
         <div class="form">
             <h1>LOGIN</h1>
-            <form action="login_action.php" method="POST">
+            <form action="#" method="POST">
                 <div class="form-group">
                     <input type="text" class="form-control" name="username" placeholder="Username" required>
                 </div>
@@ -138,7 +171,7 @@
                 <div class="forgot-password"> 
                     <a href="lupaPassword.html">Lupa Password?</a>
                     <span class="separator"> | </span>
-                    <a href="../sign%20up/sign%20up/index.html" class="sign-up">Sign Up</a>
+                    <a href="../signUp" class="sign-up">Sign Up</a>
                 </div>
                 
                 <div class="social-login">

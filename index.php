@@ -1,10 +1,6 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['username'])) {
-    header("Location: /sudahNyambung/crdn/login/login/login.php"); 
-    exit();
-}
 ?>
 
 
@@ -52,32 +48,38 @@ if (!isset($_SESSION['username'])) {
                     <a href="#" class="nav-link text-decoration-none text-white dropdown-toggle" id="homeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">HOME</a>
                     <ul class="dropdown-menu" aria-labelledby="homeDropdown">
                         <li><a class="dropdown-item" href="home/home.html">PROFIL</a></li>
-                        <li><a class="dropdown-item" href="#"></a></li>
-                        <li><a class="dropdown-item" href="#"></a></li>
                     </ul>
                 </li>
                 <li class="nav-item me-4 dropdown">
                     <a href="#" class="nav-link text-decoration-none text-white dropdown-toggle" id="pagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">PAGES</a>
                     <ul class="dropdown-menu" aria-labelledby="pagesDropdown">
-                        <li><a class="dropdown-item" href="pages/PageDataBarang/PAGE/DataBarang.html">Data Barang</a></li>
-                        <li><a class="dropdown-item" href="pages/PageDataCustomer/PAGESS/DataCustomer.html">Data Customers</a></li>
-                        <li><a class="dropdown-item" href="pages/PageDataSupplier/PAGES/DataSupplier.html">Data Supplier</a></li>
+                        <li><a class="dropdown-item" href="./Pages/PageDataBarang/DataBarang.php">Data Barang</a></li>
+                        <li><a class="dropdown-item" href="./Pages/PageDataCustomer/DataCustomer.php">Data Customers</a></li>
+                        <li><a class="dropdown-item" href="./Pages/PageDataSupplier/DataSupplier.php">Data Supplier</a></li>
                     </ul>
                 </li>
                 <li class="nav-item me-4 dropdown">
                     <a href="#" class="nav-link text-decoration-none text-white dropdown-toggle" id="transaksiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">TRANSAKSI</a>
                     <ul class="dropdown-menu" aria-labelledby="transaksiDropdown">
-                        <li><a class="dropdown-item" href="lainnya/peminjaman/peminjaman/index.html">Peminjaman</a></li>
-                        <li><a class="dropdown-item" href="lainnya/pengembalian/pengembalian/index.html">Pengembalian</a></li>
+                        <li><a class="dropdown-item" href="./lainnya/peminjaman/peminjaman.php">Peminjaman</a></li>
+                        <li><a class="dropdown-item" href="./lainnya/pengembalian/pengembalian.php">Pengembalian</a></li>
                     </ul>
                 </li>
             </div>
 
-            
+            <?php 
+                if (!isset($_SESSION['username'])): 
+            ?>
             <div class="d-flex">
-                <li class="nav-item me-3"><a href="login/login/index.html" class="text-decoration-none text-white">LOGIN</a></li>
-                <li class="nav-item"><a href="sign up/sign up/index.html" class="text-decoration-none text-white">SIGN UP</a></li>
+                <li class="nav-item me-3"><a href="./login" class="text-decoration-none text-white">LOGIN</a></li>
+                <li class="nav-item"><a href="./signUp" class="text-decoration-none text-white">SIGN UP</a></li>
             </div>
+            <?php else: ?>
+            <div class="d-flex">
+                <li class="nav-item me-3"><a href="./login/logout.php" class="text-decoration-none text-white">LOGOUT</a></li>
+            </div>
+            <?php endif; ?>
+
         </ul>
     </div>
     <div >

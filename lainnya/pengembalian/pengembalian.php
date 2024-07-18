@@ -1,4 +1,4 @@
-<?php 
+<?php
     session_start();
 ?>
 
@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peminjaman</title>
+    <title>Pengembalian</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -81,13 +81,26 @@
 <body>
     <div class="container-fluid" id="navbar-container">
         <nav class="navbar navbar-expand-lg navbar-light">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="../../index.php">
                 <i class="fas fa-home"></i>
                 <i class="fas fa-shopping-cart"></i>
-                Peminjaman
+                Pengembalian
             </a>
         </nav>
     </div>
+
+    <!-- Tampilkan pesan di atas form pencarian -->
+    <?php if (!empty($message)) : ?>
+    <div class="container">
+        <div class="alert alert-<?php echo ($status == 'success') ? 'success' : 'danger'; ?> alert-dismissible fade show" role="alert">
+            <?php echo $message; ?>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <?php endif; ?>
+        
     <?php if (isset($_SESSION['message'])): ?>
     <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
         <?php echo $_SESSION['message']; ?>
@@ -100,8 +113,9 @@
         unset($_SESSION['message_type']);
     ?>
     <?php endif; ?>
-    <form class="form-inline my-4 my-lg-0">
-        <input class="form-control mr-sm-2" type="search" placeholder="Search...." aria-label="Search">
+
+    <form class="form-inline my-4 my-lg-0" action="pengembalian.php" method="GET">
+        <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search by ID..." aria-label="Search">
         <button class="btn my-2 my-sm-0" type="submit">
             <i class="fas fa-search"></i>
         </button>
@@ -109,26 +123,33 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                <form id="dataForm" action="peminjaman_hapus.php" method="post">
+                <form id="dataForm" action="pengembalian_hapus.php" method="post">
                     <table class="table table-striped">
                          <thead>
                             <tr>
                                 <th><input type="checkbox" id="select-all"></th>
-                                <th>peminjaman_id</th>
-                                <th>customer_id</th>
-                                <th>barang_id</th>
-                                <th>tanggal_reservasi</th>
-                                <th>tanggal_pinjam</th>
-                                <th>jumlah</th>
-                                <th>total_harga</th>
-                                <th>kondisi_awal</th>
+                                <th>pengembalian_id</th>
+                                <th>pengembalian_id</th>
+                                <th>tanggal_kembali</th>
+                                <th>kondisi_Akhir</th>
+                                <th>denda</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
                             include "config.php";
 
-                            $sql = "SELECT peminjaman_id, customer_id, barang_id, tanggal_reservasi, tanggal_pinjam, jumlah, total_harga, kondisi_awal FROM peminjaman ORDER BY peminjaman_id";
+                            $searchQuery = "";
+                            if (isset($_GET['search'])) {
+                                $searchQuery = mysqli_real_escape_string($config, $_GET['search']);
+                            }
+
+                            $sql = "SELECT * FROM pengembalian";
+                            if (!empty($searchQuery)) {
+                                $sql .= " WHERE pengembalian_id LIKE '%$searchQuery%'";
+                            }
+                            $sql .= " ORDER BY pengembalian_id";
+
                             $hasil = mysqli_query($config, $sql);
 
                             if (!$hasil) {
@@ -138,15 +159,12 @@
                             while ($data = mysqli_fetch_array($hasil)) {
                             ?>
                             <tr>
-                                <td><input type="checkbox" class="checkbox-item" value="<?php echo $data['peminjaman_id']; ?>"></td>
-                                <td><?php echo $data['peminjaman_id']; ?></td>
-                                <td><?php echo $data['customer_id']; ?></td>
-                                <td><?php echo $data['barang_id']; ?></td>
-                                <td><?php echo $data['tanggal_reservasi']; ?></td>
-                                <td><?php echo $data['tanggal_pinjam']; ?></td>
-                                <td><?php echo $data['jumlah']; ?></td>
-                                <td><?php echo $data['total_harga']; ?></td>
-                                <td><?php echo $data['kondisi_awal']; ?></td>
+                                <td><input type="checkbox" name="selected[]" class="checkbox-item" value="<?= $data['pengembalian_id']; ?>" name="pengembalian_id[]"></td>
+                                <td><?= $data['pengembalian_id']; ?></td>
+                                <td><?= $data['pengembalian_id']; ?></td>
+                                <td><?= $data['tanggal_kembali']; ?></td>
+                                <td><?= $data['kondisi_Akhir']; ?></td>
+                                <td><?= $data['denda']; ?></td>
                             </tr>
                             <?php
                             }
@@ -157,9 +175,9 @@
             </div>
         </div>
         <div class="action-buttons">
-            <button class="btn btn-white-black" onclick="document.getElementById('dataForm').action='create.php'; document.getElementById('dataForm').submit();">Create</button>
+            <button class="btn btn-white-black" onclick="document.getElementById('dataForm').action='createpengembalian.php'; document.getElementById('dataForm').submit();">Create</button>
             <button class="btn btn-white-black" id='btn-update'>Update</button>
-            <button class="btn btn-danger" onclick="document.getElementById('dataForm').action='peminjaman_hapus.php'; document.getElementById('dataForm').submit();">Delete</button>
+            <button class="btn btn-danger" onclick="document.getElementById('dataForm').action='pengembalian_hapus.php'; document.getElementById('dataForm').submit();">Delete</button>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
@@ -167,31 +185,35 @@
     
     <script>
         document.getElementById('select-all').onclick = function() {
-        var checkboxes = document.querySelectorAll('.checkbox-item');
-        for (var checkbox of checkboxes) {
-            checkbox.checked = this.checked;
-        }
+            var checkboxes = document.querySelectorAll('.checkbox-item');
+            for (var checkbox of checkboxes) {
+                checkbox.checked = this.checked;
+            }
         }
 
         let checkboxes = document.querySelectorAll('.checkbox-item');
         let btnUpdate = document.getElementById('btn-update');
-        let peminjamanID;
+        let pengembalianID = null;
 
         checkboxes.forEach(function(checkbox) {
             checkbox.addEventListener('click', function() {
                 if (this.checked) {
-                    peminjamanID = this.value;
-                }else{
-                    peminjamanID = null;
+                    pengembalianID = this.value;
+                    checkboxes.forEach(cb => {
+                        if (cb !== this) cb.checked = false;
+                    });
+                } else {
+                    pengembalianID = null;
                 }
             });
         });
 
-
         btnUpdate.addEventListener('click', function() {
-            if (peminjamanID) {
-                document.getElementById('dataForm').action = 'UpdatePeminjaman.php?peminjaman_id=' + peminjamanID;
+            if (pengembalianID) {
+                document.getElementById('dataForm').action = 'UpdatePengembalian.php?pengembalian_id=' + pengembalianID;
                 document.getElementById('dataForm').submit();
+            } else {
+                alert('Please select a record to update.');
             }
         });
     </script>

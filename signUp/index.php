@@ -1,3 +1,44 @@
+<?php
+  $servername = "localhost";
+  $username = "root";
+  $password = "";
+  $dbname = "gspmultimedia";
+
+  // Membuat koneksi
+  $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+  // Memeriksa koneksi
+  if (!$conn) {
+      die("Koneksi gagal: " . mysqli_connect_error());
+  }
+
+  // Memeriksa apakah form dikirim
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      // Mengamankan input
+      $user = mysqli_real_escape_string($conn, $_POST['username']);
+      $password = mysqli_real_escape_string($conn, $_POST['password']);
+      $email = mysqli_real_escape_string($conn, $_POST['email']);
+      
+      // Hashing password sebelum menyimpannya
+      // $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+      // Menambahkan tanggal login saat ini
+      $tanggal_login = date("Y-m-d H:i:s");
+
+      // Query SQL untuk memasukkan data pengguna ke tabel admin
+      $sql = "INSERT INTO admin (username, password, tanggal_login, email) VALUES ('$user', '$password', '$tanggal_login', '$email')";
+
+      if (mysqli_query($conn, $sql)) {
+          header("Location: ../login");
+      } else {
+          echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+      }
+
+      mysqli_close($conn);
+  } 
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -99,7 +140,7 @@
       <div class="form">
         <h1>SIGN UP</h1>
         <form
-          action="./signup.php"
+          action="#"
           method="POST">
           <input
             type="Username"
@@ -130,8 +171,8 @@
               >Already Have an Account ?</a
             >
             <a
-              href="#"
-              class="Sign-in"
+              href="../login"
+              class="Sign-in text-white"
               >Sign in</a
             >
           </div>

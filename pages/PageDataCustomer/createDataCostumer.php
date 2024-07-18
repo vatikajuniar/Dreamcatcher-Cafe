@@ -34,7 +34,7 @@
 <body>
     <div class="container-fluid" id="navbar-container">
         <nav class="navbar navbar-expand-lg navbar-light">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="../../index.php">
                 <i class="fas fa-home"></i>
                 <i class="bi bi-person-video2"></i>
                 Create Data Customer

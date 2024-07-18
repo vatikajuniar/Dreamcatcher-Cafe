@@ -1,44 +1,27 @@
 <?php
-session_start();
 include "config.php";
 
-// Cek apakah ada status success atau error dari session
-if (isset($_SESSION['status'])) {
-    if ($_SESSION['status'] === 'success') {
-        echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
-                Data supplier berhasil ditambahkan.
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-              </div>';
-    } elseif ($_SESSION['status'] === 'error') {
-        echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                Terjadi kesalahan saat menambahkan data supplier. Silakan coba lagi.
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-              </div>';
-        // Jika ada pesan error, tambahkan ini untuk menampilkan pesan error detailnya
-        if (isset($_SESSION['error_message'])) {
-            echo '<div class="alert alert-danger" role="alert">' . $_SESSION['error_message'] . '</div>';
-        }
-    }
+session_start();
 
-    // Hapus session setelah menampilkan pesan
-    unset($_SESSION['status']);
-    unset($_SESSION['error_message']);
+// Ambil status dari query string jika ada
+$status = isset($_GET['status']) ? $_GET['status'] : '';
+
+// Set pesan berdasarkan status
+$message = '';
+if ($status == 'success') {
+    $message = 'Data berhasil dihapus.';
+} elseif ($status == 'error') {
+    $message = 'Data gagal dihapus. Silakan coba lagi.';
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Supplier</title>
+    <title>Peminjaman</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
     <style>
         body {
             font-family: Inknut Antiqua;
@@ -54,7 +37,7 @@ if (isset($_SESSION['status'])) {
             align-items: center;
         }
         .navbar-brand i {
-            margin-right: 10px; /* Adjust spacing between the icon and text */
+            margin-right: 10px;
         }
         .form-inline {
             display: flex;
@@ -110,13 +93,25 @@ if (isset($_SESSION['status'])) {
 <body>
     <div class="container-fluid" id="navbar-container">
         <nav class="navbar navbar-expand-lg navbar-light">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="../../index.php">
                 <i class="fas fa-home"></i>
-                <i class="bi bi-truck"></i>
-                Data Supplier
+                <i class="fas fa-shopping-cart"></i>
+                Peminjaman
             </a>
         </nav>
     </div>
+
+    <!-- Tampilkan pesan di atas form pencarian -->
+    <?php if (!empty($message)) : ?>
+    <div class="container">
+        <div class="alert alert-<?php echo ($status == 'success') ? 'success' : 'danger'; ?> alert-dismissible fade show" role="alert">
+            <?php echo $message; ?>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <?php if (isset($_SESSION['message'])): ?>
     <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
@@ -137,30 +132,35 @@ if (isset($_SESSION['status'])) {
             <i class="fas fa-search"></i>
         </button>
     </form>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                <form id="dataForm" action="supplier_hapus.php" method="post">
+                <form id="dataForm" action="peminjaman_hapus.php" method="post">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th><input type="checkbox" id="select-all"></th>
-                                <th>supplier_id</th>
-                                <th>nama_supplier</th>
-                                <th>alamat</th>
-                                <th>telepon</th>
-                                <th>email</th>
+                                <th>peminjaman_id</th>
+                                <th>customer_id</th>
+                                <th>barang_id</th>
+                                <th>tanggal_reservasi</th>
+                                <th>tanggal_pinjam</th>
+                                <th>jumlah</th>
+                                <th>total_harga</th>
+                                <th>kondisi_awal</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
+                            // Ambil data peminjaman dari database
                             $search = isset($_GET['search']) ? mysqli_real_escape_string($config, $_GET['search']) : '';
 
-                            $sql = "SELECT supplier_id, nama_supplier, alamat, telepon, email FROM supplier";
+                            $sql = "SELECT peminjaman_id, customer_id, barang_id, tanggal_reservasi, tanggal_pinjam, jumlah, total_harga, kondisi_awal FROM peminjaman";
                             if ($search) {
-                                $sql .= " WHERE nama_supplier LIKE '%$search%'";
+                                $sql .= " WHERE customer_id LIKE '%$search%' OR barang_id LIKE '%$search%' OR tanggal_reservasi LIKE '%$search%' OR tanggal_pinjam LIKE '%$search%' OR jumlah LIKE '%$search%' OR total_harga LIKE '%$search%' OR kondisi_awal LIKE '%$search%'";
                             }
-                            $sql .= " ORDER BY supplier_id";
+                            $sql .= " ORDER BY peminjaman_id";
 
                             $hasil = mysqli_query($config, $sql);
 
@@ -168,17 +168,20 @@ if (isset($_SESSION['status'])) {
                                 while ($data = mysqli_fetch_array($hasil)) {
                             ?>
                             <tr>
-                                <td><input type="checkbox" name="selected[]" class="checkbox-item" value="<?php echo $data['supplier_id']; ?>"></td>
-                                <td><?php echo $data['supplier_id']; ?></td>
-                                <td><?php echo $data['nama_supplier']; ?></td>
-                                <td><?php echo $data['alamat']; ?></td>
-                                <td><?php echo $data['telepon']; ?></td>
-                                <td><?php echo $data['email']; ?></td>
+                                <td><input type="checkbox" name="selected[]" class="checkbox-item"  value="<?php echo $data['peminjaman_id']; ?>"></td>
+                                <td><?php echo $data['peminjaman_id']; ?></td>
+                                <td><?php echo $data['customer_id']; ?></td>
+                                <td><?php echo $data['barang_id']; ?></td>
+                                <td><?php echo $data['tanggal_reservasi']; ?></td>
+                                <td><?php echo $data['tanggal_pinjam']; ?></td>
+                                <td><?php echo $data['jumlah']; ?></td>
+                                <td><?php echo $data['total_harga']; ?></td>
+                                <td><?php echo $data['kondisi_awal']; ?></td>
                             </tr>
                             <?php
                                 }
                             } else {
-                                echo "<tr><td colspan='6'>No records found</td></tr>";
+                                echo "<tr><td colspan='9'>No records found</td></tr>";
                             }
                             ?>
                         </tbody>
@@ -187,11 +190,12 @@ if (isset($_SESSION['status'])) {
             </div>
         </div>
         <div class="action-buttons">
-            <a href="CreateSupplier.php" class="btn btn-white-black">Create</a>
-            <button class="btn btn-white-black" id='btn-update'>Update</button>
-            <button class="btn btn-danger" onclick="document.getElementById('dataForm').submit();">Delete</button>
+            <button class="btn btn-white-black" onclick="window.location.href='CreatePeminjaman.php';">Create</button>
+            <button id="btn-update" class="btn btn-white-black">Update</button>
+            <button class="btn btn-danger" onclick="document.getElementById('dataForm').action='peminjaman_hapus.php'; document.getElementById('dataForm').submit();">Delete</button>
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
@@ -204,24 +208,24 @@ if (isset($_SESSION['status'])) {
 
         let checkboxes = document.querySelectorAll('.checkbox-item');
         let btnUpdate = document.getElementById('btn-update');
-        let supplierID = null;
+        let peminjamanID = null;
 
         checkboxes.forEach(function(checkbox) {
             checkbox.addEventListener('click', function() {
                 if (this.checked) {
-                    supplierID = this.value;
+                    peminjamanID = this.value;
                     checkboxes.forEach(cb => {
                         if (cb !== this) cb.checked = false;
                     });
                 } else {
-                    supplierID = null;
+                    peminjamanID = null;
                 }
             });
         });
 
         btnUpdate.addEventListener('click', function() {
-            if (supplierID) {
-                document.getElementById('dataForm').action = 'UpdateDataSupplier.php?supplier_id=' + supplierID;
+            if (peminjamanID) {
+                document.getElementById('dataForm').action = 'UpdatePeminjaman.php?peminjaman_id=' + peminjamanID;
                 document.getElementById('dataForm').submit();
             } else {
                 alert('Please select a record to update.');
