@@ -7,7 +7,7 @@
 
         $sql = "SELECT * FROM barang WHERE barang_id = ?";
         $stmt = mysqli_prepare($config, $sql);
-        mysqli_stmt_bind_param($stmt, "i", $supplierId);
+        mysqli_stmt_bind_param($stmt, "i", $barangID);
         mysqli_stmt_execute($stmt);
     
         // Mendapatkan hasil query
@@ -31,11 +31,10 @@
         $kategori = $_POST['kategori'];
         $stok = $_POST['stok'];
         $hargaSewa = $_POST['hargaSewa'];
-        $supplierId = $_POST['supplierID'];
 
-        $sql = "UPDATE barang SET barang_id = ?, nama_barang = ?, kategori = ?, stok = ?, harga_sewa = ?, supplier_id = ? WHERE barang_id = ?";
+        $sql = "UPDATE barang SET barang_id = ?, nama_barang = ?, kategori = ?, stok = ?, harga_sewa = ? WHERE barang_id = ?";
         $stmt = mysqli_prepare($config, $sql);
-        mysqli_stmt_bind_param($stmt, "sssiiss", $barangID, $namaBarang, $kategori, $stok, $hargaSewa, $supplierId, $barangID);
+        mysqli_stmt_bind_param($stmt, "issiis", $barangID, $namaBarang, $kategori, $stok, $hargaSewa, $barangID);
         mysqli_stmt_execute($stmt);
 
         if( mysqli_stmt_affected_rows($stmt) > 0) {
@@ -97,7 +96,7 @@
             <a class="navbar-brand" href="#">
                 <i class="fas fa-home"></i>
                 <i class="bi bi-folder-fill"></i>
-                Update Data Supplier
+                Update Data Barang
             </a>
         </nav>
     </div>
@@ -131,12 +130,6 @@
                 <label for="denda" class="col-sm-2 col-form-label">Harga Sewa:</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="hargaSewa" name="hargaSewa" required value="<?= $data['harga_sewa'] ?>">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="denda" class="col-sm-2 col-form-label">Supplier Id:</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" id="supplierID" name="supplierID" required value="<?= $data['supplier_id'] ?>">
                 </div>
             </div>
             <div class="form-group row">
