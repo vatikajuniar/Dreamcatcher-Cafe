@@ -1,5 +1,9 @@
 <?php
-session_start();
+    session_start();
+
+    if (!isset($_SESSION['username'])){ 
+        header("Location: ../login");
+    }
 
 ?>
 
@@ -67,19 +71,9 @@ session_start();
                 </li>
             </div>
 
-            <?php 
-                if (!isset($_SESSION['username'])): 
-            ?>
-            <div class="d-flex">
-                <li class="nav-item me-3"><a href="./login" class="text-decoration-none text-white">LOGIN</a></li>
-                <li class="nav-item"><a href="./signUp" class="text-decoration-none text-white">SIGN UP</a></li>
-            </div>
-            <?php else: ?>
             <div class="d-flex">
                 <li class="nav-item me-3"><a href="./login/logout.php" class="text-decoration-none text-white">LOGOUT</a></li>
             </div>
-            <?php endif; ?>
-
         </ul>
     </div>
     <div >
